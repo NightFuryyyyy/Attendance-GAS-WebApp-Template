@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    @property --base {
+      syntax: "<color>";
+      inherits: true;
+      initial-value: #000000;
+    }
+
+    :root {
+      --base: #000000;
+      --bg:  oklch(from var(--base) 0.17 min(c * 0.8, 0.09) h);
+      --bar: color-mix(in oklch, var(--bg) 90%, oklch(from var(--base) 0.8 min(c * 1.2, 0.16) h));
+      --row: rgba(255, 255, 255, 0.02);
+      --row-hover: rgba(255, 255, 255, 0.04);
+      --field: rgba(255, 255, 255, 0.05);
+      --field-hover: rgba(255, 255, 255, 0.1);
+      --field-focus: rgba(255, 255, 255, 0.15);
+      --well: rgba(0, 0, 0, 0.25);
+      --choice-hover: rgba(255, 255, 255, 0.1);
+      --toggle-on: rgba(255, 255, 255, 0.15);
+      --line: rgba(255, 255, 255, 0.1);
+      --line-strong: rgba(255, 255, 255, 0.2);
+
+      --text: rgba(255, 255, 255, 0.87);
+      --muted: rgba(255, 255, 255, 0.6);
+      --hover: rgba(255, 255, 255, 0.1);
+      --press: rgba(255, 255, 255, 0.15);
+      --accent: #e0a458;
+
+      color-scheme: dark;
+      transition: --base 2s ease;
+    }
+
+    .ti {
+      font-size: 21px;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: #e6e6e6;
+    }
+
+    .bar {
+      height: 46px;
+      flex: none;
+      background-color: var(--bar);
+    }
+
+    .bar-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 700px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 8px;
+    }
+
+    #savingDiv {
+      display: flex;
+    }
+
+    @keyframes rotate {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(-360deg);
+      }
+    }
+
+    #savingDiv #savingIcon {
+      display: none;
+    }
+
+    #savingDiv.saving #savedIcon {
+      display: none;
+    }
+
+    #savingDiv.saving #savingIcon {
+      display: block;
+      animation: rotate 1s infinite;
+    }
+
+    .field {
+      height: 30px;
+      padding: 0 8px;
+      border: 0;
+      border-radius: 8px;
+      background-color: var(--field);
+      color: var(--text);
+      font: inherit;
+    }
+
+    .field-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .field:hover {
+      background-color: var(--field-hover);
+    }
+
+    .field:focus, .field:has(:focus) {
+      background-color: var(--field-focus);
+    }
+
+    .field > i {
+      color: var(--muted);
+    }
+
+    #searchInputBox {
+      flex: 1;
+      min-width: 0;
+    }
+    #dateOption {
+      justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+      gap: 0;
+    }
+    #sectionOptions {
+      cursor: pointer;
+    }
+
+    #searchInput {
+      height: 30px;
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      padding: 0;
+      font-family: inherit;
+      font-size: inherit;
+      background-color: transparent;
+      caret-color: #ffffff;
+      color: var(--text);
+    }
+
+    #searchInput:focus {
+      outline: 0;
+    }
+
+    #searchInput::placeholder {
+      color: var(--muted);
+    }
+
+    @keyframes pulse-animation {
+      0% {
+        box-shadow: 0 0 0 0px rgba(255, 255, 255, 0.8);
+      }
+      33% {
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+      }
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      position: relative;
+      border-radius: 8px;
+      padding: 4.5px;
+      cursor: pointer;
+      color: var(--muted);
+      justify-content: start;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background-color: var(--hover);
+      color: var(--text);
+    }
+
+    .btn:active,
+    .btn:has(> input:checked) {
+      background-color: var(--press);
+      color: var(--text);
+    }
+
+    #header:has(#issues-mode.alert) #menu-button::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent);
+      border-radius: 50%;
+      animation: pulse-animation 3s infinite;
+    }
+
+    .modes > #issues-mode.alert::after {
+      content: "";
+      position: absolute;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent);
+      border-radius: 50%;
+      animation: pulse-animation 3s infinite;
+    }
+
+    #header .bar-inner {
+      position: relative;
+    }
+
+    #header .modes {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: var(--bar);
+      padding: 8px;
+      border-radius: 8px;
+      z-index: 1;
+    }
+
+    #header:has(#menu-button > input:checked) .modes {
+      display: block;
+    }
+
+    body:has(#attendance-mode > input:checked) > #main:not(.loading) > #memberList,
+    body:has(#percentage-mode > input:checked) > #main:not(.loading) > #memberList,
+    body:has(#issues-mode > input:checked) > #main:not(.loading) > #issueList {
+      display: block;
+    }
+
+    body:has(#percentage-mode > input:checked) > #main > #memberList .choices-div {
+      display: none;
+    }
+
+    body:has(#percentage-mode > input:checked) > #main > #memberList .percent-span {
+      display: flex;
+    }
+
+    #main {
+      flex: 1;
+      min-height: 0;
+    }
+
+    .pane {
+      display: none;
+      height: 100%;
+      width: 100%;
+      overflow: auto;
+    }
+
+    #main.loading > .pane-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .member-div.hidden {
+      display: none;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 4px 8px;
+      border-radius: 8px;
+      border-bottom: 1px solid var(--line);
+      background-color: var(--row);
+    }
+
+    .row:hover {
+      background-color: var(--row-hover);
+    }
+
+    .issue-div {
+      height: 32px;
+      border-left: 3px solid var(--accent);
+    }
+    
+    .issue-icon {
+      display: flex;
+      color: var(--accent);
+    }
+
+    #closeIssues {
+      height: 32px;
+      border: 1px solid var(--line-strong);
+      background-color: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    #closeIssues:hover {
+      background-color: var(--hover);
+      color: var(--text);
+    }
+
+    #closeIssues:active {
+      background-color: var(--press);
+    }
+
+    #issueList:has(.issue-div) #closeIssues {
+      display: none;
+    }
+
+    .name-span {
+      margin-right: auto;
+    }
+
+    .choices-div {
+      display: flex;
+      flex-direction: column;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-color: var(--well);
+    }
+
+    .choices-row-1,
+    .choices-row-2 {
+      display: flex;
+    }
+
+    #main .choices-row-2 {
+      height: 0;
+      transition: height 0.5s;
+    }
+
+    #main .choices-div:has(.dropdown-arrow > input:checked) .choices-row-2 {
+      height: 32px;
+    }
+
+    .choice {
+      display: flex;
+      height: 32px;
+      width: 37px;
+      justify-content: center;
+      align-items: center;
+      border-radius: 8px;
+      color: #a6a6a6;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .choice:hover {
+      background-color: var(--choice-hover);
+      color: #e6e6e6;
+    }
+
+    .blank, .blank-chosen { --c: rgba(255, 255, 255, 0.12); }
+    .P, .P-chosen { --c: #1c4833; }
+    .A, .A-chosen { --c: #3c0f09; }
+    .E, .E-chosen { --c: #4c3902; }
+    .M, .M-chosen { --c: #04194d; }
+    .I, .I-chosen { --c: #7d2800; }
+    .C, .C-chosen { --c: #3a005c; }
+
+    .blank-chosen .blank,
+    .P-chosen .P,
+    .A-chosen .A,
+    .E-chosen .excuse,
+    .M-chosen .excuse,
+    .I-chosen .excuse,
+    .C-chosen .excuse,
+    .modal .choice:has(input:checked) {
+      background-color: var(--c);
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+      transform: scale(1.05);
+    }
+
+    .M-chosen .E-excuse,
+    .I-chosen .E-excuse,
+    .C-chosen .E-excuse {
+      display: none;
+    }
+
+    .M-excuse,
+    .I-excuse,
+    .C-excuse {
+      display: none;
+    }
+
+    #main .E {
+      display: none;
+    }
+
+    #main .M-chosen .E,
+    #main .I-chosen .E,
+    #main .C-chosen .E {
+      display: flex;
+    }
+
+    .M-chosen .M,
+    .I-chosen .I,
+    .C-chosen .C {
+      display: none;
+    }
+
+    .M-chosen .M-excuse,
+    .I-chosen .I-excuse,
+    .C-chosen .C-excuse {
+      display: flex;
+    }
+
+    .dropdown-arrow {
+      width: 32px;
+    }
+
+    .dropdown-arrow:has(input:checked) {
+      background-color: var(--toggle-on);
+    }
+
+    .dropdown-arrow>input {
+      display: none;
+    }
+
+    .dropdown-arrow > i {
+      transition: transform 0.15s ease;
+    }
+
+    .choices-div:has(.dropdown-arrow > input:checked) .dropdown-arrow > i {
+      color: #ffffff;
+      transform: rotate(180deg);
+    }
+
+    .percent-span {
+      display: none;
+      height: 32px;
+      width: 54px;
+      justify-content: center;
+      align-items: center;
+      background-color: #1c4833;
+      border-radius: 8px;
+    }
+
+    .percent-span.warning {
+      background-color: #4c3902;
+    }
+
+    .percent-span.critical {
+      background-color: #3c0f09;
+    }
+
+    #fryingPan {
+      display: block;
+      margin-left: -35px;
+      margin-bottom: 20px;
+    }
+
+    .loader {
+      position: relative;
+      width: 120px;
+      height: 14px;
+      border-radius: 0 0 15px 15px;
+      background-color: #3e494d;
+      box-shadow: 0 -1px 4px #5d6063 inset;
+      animation: panex 0.5s linear alternate infinite;
+      transform-origin: 170px 0;
+      z-index: 10;
+      perspective: 300px;
+    }
+
+    .loader::before {
+      content: '';
+      position: absolute;
+      left: calc(100% - 2px);
+      top: 0;
+      z-index: -2;
+      height: 10px;
+      width: 70px;
+      border-radius: 0 4px 4px 0;
+      background-repeat: no-repeat;
+      background-image: linear-gradient(#6c4924, #4b2d21), linear-gradient(#4d5457 24px, transparent 0), linear-gradient(#9f9e9e 24px, transparent 0);
+      background-size: 50px 10px, 4px 8px, 24px 4px;
+      background-position: right center, 17px center, 0px center;
+    }
+
+    .loader::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      z-index: -2;
+      transform: translate(-50%, -20px) rotate3d(75, -2, 3, 78deg);
+      width: 55px;
+      height: 53px;
+      background: #fff;
+      background-image:
+        radial-gradient(circle 3px, #fff6 90%, transparent 10%),
+        radial-gradient(circle 12px, #ffc400 90%, transparent 10%),
+        radial-gradient(circle 12px, #ffae00 100%, transparent 0);
+      background-repeat: no-repeat;
+      background-position: -4px -6px, -2px -2px, -1px -1px;
+      box-shadow: -2px -3px #0002 inset, 0 0 4px #0003 inset;
+      border-radius: 47% 36% 50% 50% / 49% 45% 42% 44%;
+      animation: eggRst 1s ease-out infinite;
+    }
+
+    @keyframes eggRst {
+
+      0%,
+      100% {
+        transform: translate(-50%, -20px) rotate3d(90, 0, 0, 90deg);
+        opacity: 0;
+      }
+
+      10%,
+      90% {
+        transform: translate(-50%, -30px) rotate3d(90, 0, 0, 90deg);
+        opacity: 1;
+      }
+
+      25% {
+        transform: translate(-50%, -40px) rotate3d(85, 17, 2, 70deg)
+      }
+
+      75% {
+        transform: translate(-50%, -40px) rotate3d(75, -3, 2, 70deg)
+      }
+
+      50% {
+        transform: translate(-55%, -50px) rotate3d(75, -8, 3, 50deg)
+      }
+    }
+
+    @keyframes panex {
+      0% {
+        transform: rotate(-5deg)
+      }
+
+      100% {
+        transform: rotate(10deg)
+      }
+    }
+
+    #cooking::after {
+      content: "...";
+      display: inline-block;
+      width: 0;
+      overflow: hidden;
+      vertical-align: bottom;
+      animation: ellipsis-animation 1.5s steps(4, end) infinite;
+    }
+
+    @keyframes ellipsis-animation {
+      to {
+        width: 15px;
+      }
+    }
+
+    #closeIssuesIcon {
+      display: flex;
+    }
+
+    #chosenDateSpan {
+      margin-left: 8px;
+      width: 40px;
+      display: flex;
+      justify-content: center;
+      color: rgba(255, 255, 255, 87%);
+    }
+
+    #datePicker {
+      margin-left: -21px !important;
+      height: 21px;
+      width: 21px;
+      opacity: 0;
+      padding: 0;
+      border: 0;
+      transform: scaleX(7) scaleY(2);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--bar);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      max-width: 200px;
+      width: 100vw;
+    }
+
+    .modal .choice input {
+      display: none;
+    }
+
+    #fillBlanks {
+      display: none;
+    }
+
+    body:has(#attendance-mode > input:checked):has(#main:not(.loading)) #fillBlanks {
+      display: block;
+    }
+
+    #fillBlanksApply {
+      margin-left: auto;
+      border: 1px solid var(--line);
+    }
+
+    #closeFillBlanksOverlay {
+      margin-left: auto;
+    }
+
+    #fillBlanksOverlay:has(.choice.blank input:checked) #fillBlanksApply {
+      opacity: 0.5;
+      background-color: transparent;
+      color: var(--muted);
+      cursor: auto;
+    }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.2.0",
+        "react-dom/": "https://esm.sh/react-dom@19.2.0/"
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css" />
+</head>
+
+<body>
+  <div id="header" class="bar">
+    <div id="searchBoxContainer" class="bar-inner">
+      <div id="savingDiv">
+        <i id="savedIcon" class="ti ti-cloud-check"></i>
+        <i id="savingIcon" class="ti ti-refresh"></i>
+      </div>
+      <div id="searchInputBox" class="field field-box">
+        <i class="ti ti-search"></i>
+        <input type="text" id="searchInput" placeholder="Enter a name">
+      </div>
+      <label id="menu-button" class="btn">
+        <input type="checkbox" hidden>
+        <i class="ti ti-menu-4"></i>
+      </label>
+      <div class="modes">
+        <label class="btn" id="attendance-mode">
+          <input type="radio" name="mode" hidden>
+          <i class="ti ti-list-check"></i>
+          <span class="mode-label">Attendance</span>
+        </label>
+        <label class="btn" id="percentage-mode">
+          <input type="radio" name="mode" hidden>
+          <i class="ti ti-percentage"></i>
+          <span class="mode-label">Percentage</span>
+        </label>
+        <label class="btn" id="issues-mode">
+          <input type="radio" name="mode" hidden>
+          <i class="ti ti-alert-circle"></i>
+          <span class="mode-label">Issues</span>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div id="main">
+    <div id="loading" class="pane pane-loading">
+      <div id="loaderContainer">
+        <span class="loader" id="fryingPan"></span>
+        <span id="cooking">Cooking</span>
+      </div>
+    </div>
+    <div id="memberList" class="pane pane-members"></div>
+    <div id="issueList" class="pane pane-issues">
+      <div id="closeIssues" class="row">
+        <div id="closeIssuesIcon">
+          <i class="ti ti-arrow-left"></i>
+        </div>
+        <span>No issues, yay! Go back :&#41;</span>
+      </div>
+      <div id="issuesContainer"></div>
+    </div>
+  </div>
+
+  <div id="footer" class="bar">
+    <div id="optionsContainer" class="bar-inner">
+      <select id="sectionOptions" class="field">
+        <option value="" hidden="">Select a section</option>
+        <? for (var i = 0; i < sheets.length; i++) { ?>
+          <option value="<?= sheets[i].name ?>" data-colour="<?= sheets[i].colour ?>">
+            <?= sheets[i].name ?>
+          </option>
+        <? } ?>
+      </select>
+      <div id="dateOption" class="field field-box">
+        <i class="ti ti-calendar"></i>
+        <input type="date" id="datePicker">
+        <span id="chosenDateSpan"></span>
+      </div>
+      <div id="fillBlanks">
+        <div id="fillBlanksButton" class="btn">
+          <i class="ti ti-wand"></i>
+        </div>
+        <div id="fillBlanksOverlay" class="overlay">
+          <div class="modal">
+            <i id="closeFillBlanksOverlay" class="ti ti-x btn"></i>
+            <div>Fill blanks with</div>
+            <div class="choices-div">
+              <div class="choices-row-1">
+                <label class="choice blank" data-value="blank"><input type="radio" name="blank-fill-choices">-</label>
+                <label class="choice P" data-value="P"><input type="radio" name="blank-fill-choices">P</label>
+                <label class="choice A" data-value="A"><input type="radio" name="blank-fill-choices">A</label>
+                <label class="choice E" data-value="E"><input type="radio" name="blank-fill-choices">E</label>
+              </div>
+              <div class="choices-row-2">
+                <label class="choice M" data-value="M"><input type="radio" name="blank-fill-choices">M</label>
+                <label class="choice I" data-value="I"><input type="radio" name="blank-fill-choices">I</label>
+                <label class="choice C" data-value="C"><input type="radio" name="blank-fill-choices">C</label>
+              </div>
+            </div>
+            <div id="fillBlanksApply" class="btn">
+              <i class="ti ti-check"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module">
+    import { createElement, Fragment } from "react";
+    import { createRoot } from "react-dom/client";
+
+    const savingDiv = document.getElementById("savingDiv");
+    const searchInput = document.getElementById("searchInput");
+    const menuButton = document.getElementById("menu-button");
+    const menuButtonRadio = menuButton.querySelector(":scope > input");
+    const modes = document.querySelector("#header .modes");
+    const attendanceMode = modes.querySelector("#attendance-mode");
+    const attendanceModeRadio = attendanceMode.querySelector(":scope > input");
+    const issuesMode = modes.querySelector("#issues-mode");
+    const mainDiv = document.getElementById("main");
+    const memberList = document.getElementById("memberList");
+    const closeIssues = document.getElementById("closeIssues");
+    const issuesContainer = document.getElementById("issuesContainer");
+    const sectionOptions = document.getElementById("sectionOptions");
+    const datePicker = document.getElementById("datePicker");
+    const chosenDateSpan = document.getElementById("chosenDateSpan");
+    const fillBlanksButton = document.getElementById("fillBlanksButton");
+    const fillBlanksOverlay = document.getElementById("fillBlanksOverlay");
+    const closeFillBlanksOverlay = document.getElementById("closeFillBlanksOverlay");
+    const fillBlanksOverlayChoicesDiv = fillBlanksOverlay.querySelector(".choices-div")
+    const fillBlanksApply = document.getElementById("fillBlanksApply");
+
+    const memberListRoot = createRoot(memberList);
+    const issuesRoot = createRoot(issuesContainer);
+
+    const choiceClasses = ["blank", "P", "A", "E", "M", "I", "C"].map(choice => `${choice}-chosen`);
+
+    datePicker.valueAsDate = new Date();
+    chosenDateSpan.textContent = getDMDateString(datePicker.valueAsDate);
+
+    var updates = {};
+    var lastUpdated = null;
+
+    const keepUserOnPage = (event) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    function choiceClickCallback(event) {
+      const section = sectionOptions.value;
+      const memberDiv = event.currentTarget.closest(".member-div");
+      const row = memberDiv.dataset.row;
+      const dropdownCheckbox = memberDiv.querySelector(".dropdown-arrow input");
+      var { value } = event.currentTarget.dataset;
+      if (value == memberDiv.dataset.chosenValue) {
+        return;
+      }
+      if (value == "excuse") {
+        if (["E", "M", "I", "C"].includes(memberDiv.dataset.chosenValue)) {
+          return
+        }
+        value = "E";
+      }
+      dropdownCheckbox.checked = false;
+      savingDiv.classList.add("saving");
+      window.addEventListener('beforeunload', keepUserOnPage);
+      const date = datePicker.valueAsDate;
+      const dateString = getDMDateString(date);
+      const year = date.getFullYear();
+      console.log(updates);
+      if (!Object.keys(updates).includes(section)) {
+        console.log("section not found");
+        updates[section] = {};
+      }
+      if (!Object.keys(updates[section]).includes(year.toString())) {
+        console.log(Object.keys(updates[section]));
+        console.log(year);
+        console.log("year not found");
+        updates[section][year] = {};
+      }
+      if (!Object.keys(updates[section][year]).includes(dateString)) {
+        console.log("dateString not found");
+        updates[section][year][dateString] = {};
+      }
+      updates[section][year][dateString][row] = value;
+      console.log(row);
+      console.log(updates);
+      memberDiv.classList.remove(...choiceClasses);
+      memberDiv.dataset.chosenValue = value;
+      memberDiv.classList.add(`${value}-chosen`);
+    }
+
+    function Choice(value, text, ...children) {
+      if (text == null) text = value;
+      return createElement("div",
+        {
+          className: `choice ${value}`,
+          "data-value": value,
+          onClick: choiceClickCallback
+        },
+        ...(children.length ? children : [text])
+      );
+    }
+
+    function ChoicesDiv() {
+      return createElement("div", { className: "choices-div" }, 
+        createElement("div", { className: "choices-row-1" },
+          Choice("blank", "-"),
+          Choice("P"),
+          Choice("A"),
+          Choice("excuse", null,
+            createElement("span", { className: "E-excuse" }, "E"),
+            createElement("span", { className: "M-excuse" }, "M"),
+            createElement("span", { className: "I-excuse" }, "I"),
+            createElement("span", { className: "C-excuse" }, "C")
+          ),
+          createElement("label", { className: "choice dropdown-arrow" },
+            createElement("input", { type: "checkbox" }, null),
+            createElement("i", { className: "ti ti-chevron-down" }, null)
+          )
+        ),
+        createElement("div", { className: "choices-row-2" },
+          Choice("E"),
+          Choice("M"),
+          Choice("I"),
+          Choice("C")
+        )
+      );
+    }
+
+    function MemberDiv(row, name) {
+      return createElement("div",
+        {
+          key: row,
+          className: "row member-div",
+          "data-name": name,
+          "data-row": row,
+        },
+        createElement("span", { className: "name-span" }, name),
+        ChoicesDiv(),
+        createElement("span", { className: "percent-span" }, null)
+      )
+    }
+
+    function IssueDiv(issue) {
+      return createElement("div",
+        {
+          key: issue.date,
+          className: "row issue-div",
+          "data-type": issue.type,
+          "data-date": issue.date
+        },
+        createElement("div", { className: "issue-icon" },
+          createElement("i", { className: "ti ti-alert-circle" })
+        ),
+        createElement("div", { className: "issue-text" },
+          `Found ${issue.blankCount} blanks on ${getDMDateString(new Date(issue.date))}.`
+        )
+      );
+    }
+
+    function fillNames(object) {
+      const { nameMap, issues } = object;
+
+      memberListRoot.render(createElement(Fragment, null,
+        ...nameMap.map(entry => {
+          const { row, name } = entry;
+          return MemberDiv(row, name)
+        })
+      ));
+
+      searchInput.oninput = event => {
+        const memberDivs = memberList.querySelectorAll(".member-div");
+        const query = event.target.value.toLowerCase().trim();
+        memberDivs.forEach(label => {
+          if (label.dataset.name.toLowerCase().startsWith(query) || label.dataset.name.toLowerCase().includes(` ${query}`)) {
+            label.classList.remove("hidden");
+            return;
+          }
+          label.classList.add("hidden");
+        });
+      }
+
+      const missingIssues = issues.filter(issue => issue.type == "missing");
+      issuesRoot.render(
+        createElement(Fragment, null, ...missingIssues.map(IssueDiv))
+      );
+      issuesMode.classList.toggle("alert", issues.length > 0);
+    }
+
+    sectionOptions.addEventListener("change", () => {
+      document.documentElement.style.removeProperty("--base");
+      issuesRoot.render(null);
+      memberListRoot.render(null);
+      issuesMode.classList.remove("alert");
+      mainDiv.classList.add("loading");
+      const section = sectionOptions.value;
+      google.script.run
+        .withSuccessHandler(fillNames)
+        .getNameMap(section);
+    });
+
+    function deleteUpdates(updatesToDelete) {
+      Object.keys(updatesToDelete).forEach(section => {
+        Object.keys(updatesToDelete[section]).forEach(year => {
+          Object.keys(updatesToDelete[section][year]).forEach(date => {
+            Object.keys(updatesToDelete[section][year][date]).forEach(row => {
+              if (updates[section]?.[year]?.[date]?.[row] == updatesToDelete[section][year][date][row]) {
+                delete updates[section][year][date][row];
+              }
+            });
+            if (Object.keys(updates[section][year][date]).length == 0) {
+              delete updates[section][year][date];
+            }
+          });
+          if (Object.keys(updates[section][year]).length == 0) {
+            delete updates[section][year];
+          }
+        });
+        if (Object.keys(updates[section]).length == 0) {
+          delete updates[section];
+        }
+      });
+    }
+
+    function setPolling() {
+      setInterval(() => {
+        const sectionForFetch = sectionOptions.value;
+        const dateForFetch = getDMDateString(datePicker.valueAsDate);
+        const yearForFetch = datePicker.valueAsDate.getFullYear();
+        google.script.run
+          .withSuccessHandler(valueResponse => {
+            const { section, date, year, valueMap, processedUpdates, percentMap } = valueResponse;
+            const fetchTime = new Date(valueResponse.fetchTime);
+            console.log(fetchTime);
+            if (lastUpdated > fetchTime) {
+              console.log("Late response ignored");
+              return;
+            }
+            deleteUpdates(processedUpdates);
+            if (Object.keys(updates).length == 0) {
+              savingDiv.classList.remove("saving");
+              window.removeEventListener('beforeunload', keepUserOnPage);
+            }
+            if (
+              section != sectionOptions.value ||
+              year != datePicker.valueAsDate.getFullYear() ||
+              date != getDMDateString(datePicker.valueAsDate)
+            ) {
+              return;
+            }
+            lastUpdated = fetchTime;
+            const rowsToBeUpdated = Object.keys(updates[sectionOptions.value]?.[datePicker.valueAsDate.getFullYear()]?.[getDMDateString(datePicker.valueAsDate)] ?? {});
+            const memberDivs = memberList.querySelectorAll(".member-div");
+            memberDivs.forEach(memberDiv => {
+              const row = parseInt(memberDiv.dataset.row);
+              const percentSpan = memberDiv.querySelector(".percent-span");
+              const percentage = percentMap[row];
+              const percentageAsNumber = parseFloat(percentage);
+              let level;
+              if (percentageAsNumber < 50) {
+                level = "critical";
+              } else if (percentageAsNumber < 75) {
+                level = "warning";
+              }
+              percentSpan.textContent = percentage;
+              percentSpan.classList.remove("warning", "critical");
+              if (level) {
+                percentSpan.classList.add(level);
+              }
+
+              if (rowsToBeUpdated.includes(row.toString())) {
+                console.log(`${memberDiv.dataset.name} update ignored`);
+                return;
+              }
+              const value = valueMap[row];
+              if (memberDiv.dataset.chosenValue == value) {
+                return;
+              }
+              console.log(rowsToBeUpdated);
+              console.log(row);
+              memberDiv.classList.remove(...choiceClasses);
+              memberDiv.classList.add(`${value}-chosen`);
+              memberDiv.dataset.chosenValue = value;
+            });
+            if (mainDiv.classList.contains("loading")) {
+              attendanceModeRadio.checked = true;
+              mainDiv.classList.remove("loading");
+            }
+            document.documentElement.style.setProperty("--base", sectionOptions.options[sectionOptions.selectedIndex].dataset.colour);
+          })
+          .exchange(updates, sectionForFetch, dateForFetch, yearForFetch);
+      }, 2500);
+      sectionOptions.removeEventListener("change", setPolling);
+    }
+
+    closeIssues.addEventListener("click", () => {
+      attendanceModeRadio.checked = true;
+    });
+    
+    modes.addEventListener("click", () => {
+      menuButtonRadio.checked = false;
+    });
+
+    sectionOptions.addEventListener("change", setPolling);
+
+    datePicker.addEventListener("change", () => {
+      chosenDateSpan.textContent = getDMDateString(datePicker.valueAsDate);
+      if (!sectionOptions.value) {
+        return;
+      }
+      mainDiv.classList.add("loading");
+    });
+
+    function getDMDateString(date) {
+      return [
+        date.getDate(),
+        date.getMonth() + 1,
+      ].join("/");
+    }
+
+    fillBlanksButton.addEventListener("click", () => {
+      fillBlanksOverlayChoicesDiv.querySelector(".choice.blank > input").checked = true;
+      fillBlanksOverlay.classList.add("show");
+    });
+
+    closeFillBlanksOverlay.addEventListener("click", () => {
+      fillBlanksOverlay.classList.remove("show");
+    });
+
+    fillBlanksApply.addEventListener("click", () => {
+      const { value } = fillBlanksOverlayChoicesDiv.querySelector(".choice:has(input:checked)").dataset;
+      if (value == "blank") {
+        return;
+      }
+      document.querySelectorAll(`#main .member-div.blank-chosen .choice.${value}`).forEach(choice => {
+        choice.click();
+      });
+      fillBlanksOverlay.classList.remove("show");
+    });
+  </script>
+</body>
+</html>
