@@ -2,6 +2,8 @@
 
 [Key Features](#key-features) • [Demo](#demo) • [Setup](#setup)
 
+![cross-app](https://raw.githubusercontent.com/NightFuryyyyy/Attendance-GAS-WebApp-Template/refs/heads/assets/laptop-phone.png)
+
 ## Key Features
 
 - Mark attendance as P, A, E, M, I or C for every member, by section and date.
