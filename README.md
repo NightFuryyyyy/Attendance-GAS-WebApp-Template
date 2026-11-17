@@ -2,7 +2,7 @@
 
 [Key Features](#key-features) • [Demo](#demo) • [Setup](#setup)
 
-![cross-app](https://raw.githubusercontent.com/NightFuryyyyy/Attendance-GAS-WebApp-Template/refs/heads/assets/laptop-phone.png)
+![cross-platform](https://raw.githubusercontent.com/NightFuryyyyy/Attendance-GAS-WebApp-Template/refs/heads/assets/cross-platform.png)
 
 ## Key Features
 
@@ -18,17 +18,34 @@
 
 ## Demo
 
-[![](https://raw.githubusercontent.com/NightFuryyyyy/Attendance-GAS-WebApp-Template/refs/heads/assets/attendance.png)](https://raw.githubusercontent.com/NightFuryyyyy/Attendance-GAS-WebApp-Template/refs/heads/assets/attendance.png) Mark attendance
-
-[![](https://raw.githubusercontent.com/NightFuryyyyy/Attendance-GAS-WebApp-Template/refs/heads/assets/percentage.png)](https://raw.githubusercontent.com/NightFuryyyyy/Attendance-GAS-WebApp-Template/refs/heads/assets/percentage.png) Percentage view
-
-[![](https://raw.githubusercontent.com/NightFuryyyyy/Attendance-GAS-WebApp-Template/refs/heads/assets/issues.png)](https://raw.githubusercontent.com/NightFuryyyyy/Attendance-GAS-WebApp-Template/refs/heads/assets/issues.png) Issues view
+<table>
+  <tbody>
+    <tr>
+      <td>
+        <img alt="attendance-marking-view" src="https://raw.githubusercontent.com/NightFuryyyyy/Attendance-GAS-WebApp-Template/refs/heads/assets/attendance-marking-view.png">
+      </td>
+      <td>Mark attendance</td>
+    </tr>
+    <tr>
+      <td>
+        <img alt="percentages-view" src="https://raw.githubusercontent.com/NightFuryyyyy/Attendance-GAS-WebApp-Template/refs/heads/assets/percentages-view.png">
+      </td>
+      <td>View percentages</td>
+    </tr>
+    <tr>
+      <td>
+        <img alt="issues-view" src="https://raw.githubusercontent.com/NightFuryyyyy/Attendance-GAS-WebApp-Template/refs/heads/assets/issues-view.png">
+      </td>
+      <td>Spot issues</td>
+    </tr>
+  </tbody>
+</table>
 
 ## Setup
 
 1. Click [this link](https://docs.google.com/spreadsheets/d/1bJE2JL2DUOroMPSa0QUhqsZfh36WFVfYCbuGn53aBA0/) to open the Google Sheet.
 2. Click "File" > "Make a copy" (this also copies the Apps Script project).
-3. Delete all the sheets except one.
+3. Delete all the sheets except "Soprano".
 4. Delete all the names on the remaining sheet.
 5. Change the date in the first date column.
 6. Right-click the sheet's tab and choose "Duplicate" once for each section.
